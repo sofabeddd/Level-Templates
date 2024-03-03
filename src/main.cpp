@@ -1,16 +1,114 @@
-#include <Geode/Geode.hpp>
+#include <fstream>
+#include <sstream>
 
+#include <Geode/Geode.hpp>
+#include <Geode/modify/EditLevelLayer.hpp>
 #include <Geode/modify/GameLevelManager.hpp>
 
 using namespace geode::prelude;
 
-gd::string level_string = "kS38,1_40_2_125_3_255_11_255_12_255_13_255_4_-1_6_1000_7_1_15_1_18_0_8_1|1_0_2_102_3_255_11_255_12_255_13_255_4_-1_6_1001_7_1_15_1_18_0_8_1|1_0_2_102_3_255_11_255_12_255_13_255_4_-1_6_1009_7_1_15_1_18_0_8_1|1_255_2_255_3_255_11_255_12_255_13_255_4_-1_6_1002_5_1_7_1_15_1_18_0_8_1|1_40_2_125_3_255_11_255_12_255_13_255_4_-1_6_1013_7_1_15_1_18_0_8_1|1_40_2_125_3_255_11_255_12_255_13_255_4_-1_6_1014_7_1_15_1_18_0_8_1|1_0_2_225_3_150_11_255_12_255_13_255_4_-1_6_1005_5_1_7_1_15_1_18_0_8_1|1_125_2_255_3_175_11_255_12_255_13_255_4_-1_6_1006_5_1_7_1_15_1_18_0_8_1|1_0_2_0_3_0_11_255_12_255_13_255_4_-1_6_2_7_1_15_1_18_0_8_1|1_255_2_255_3_255_11_255_12_255_13_255_4_-1_6_3_7_1_15_1_9_1000_18_0_8_1|1_255_2_255_3_255_11_255_12_255_13_255_4_-1_6_4_5_1_7_1_15_1_9_1000_18_0_8_1|1_255_2_255_3_255_11_255_12_255_13_255_4_-1_6_5_5_1_7_1_15_1_18_0_8_1|1_0_2_0_3_0_11_255_12_255_13_255_4_-1_6_6_7_0.5_15_1_18_0_8_1|,kA13,0,kA15,0,kA16,0,kA14,,kA6,0,kA7,0,kA25,0,kA17,0,kA18,0,kS39,0,kA2,0,kA3,0,kA8,0,kA4,0,kA9,0,kA10,0,kA22,0,kA23,0,kA24,0,kA27,1,kA40,1,kA41,1,kA42,1,kA28,0,kA29,0,kA31,1,kA32,1,kA36,0,kA43,0,kA44,0,kA45,1,kA33,1,kA34,1,kA35,0,kA37,1,kA38,1,kA39,1,kA19,0,kA26,0,kA20,0,kA21,0,kA11,0";
+class LevelTemplate {
+public:
+    gd::string m_name;
+    gd::string m_levelString;
 
-class $modify(GameLevelManager) {
+    static LevelTemplate create(const gd::string& template_name, const GJGameLevel& level) {
+        return LevelTemplate {
+            template_name,
+            level.m_levelString
+        };
+    }
+
+    static LevelTemplate create(const ghc::filesystem::path& filepath) {
+        std::ifstream input_file(filepath);
+
+        if (!input_file.is_open()) {
+            log::error("failed to open level template file \"{}\"", filepath.string());
+            return LevelTemplate {};
+        }
+
+        matjson::Value level_template = matjson::parse(static_cast<std::stringstream&>((std::stringstream&) (std::stringstream() << input_file.rdbuf())).str());
+
+        return LevelTemplate {
+            level_template.get<gd::string>("name"),
+            level_template.get<gd::string>("level_string"),
+        };
+    }
+
+    void save() {
+        save(m_name);
+    }
+
+    void save(const std::string& filename) {
+        auto save_directory = dirs::getModsSaveDir().string().append("/sofabeddd.level_templates/templates/");
+
+        if (CreateDirectory(save_directory.c_str(), nullptr) || ERROR_ALREADY_EXISTS == GetLastError()) {
+            std::ofstream template_file(save_directory.append(LevelTemplate::toValidFileName(filename)).append(".leveltemplate").c_str());
+
+            template_file << "{\n\t\"name\": \"" << m_name.c_str() << "\",\n\t\"level_string\":\"" << m_levelString.c_str() << "\"\n}" << std::endl;
+            template_file.close();
+
+            FLAlertLayer::create("Template Created", "Created new level template <cc>\"" + filename + "\"</c>", "OK")->show();
+        }
+
+        else {
+            log::error("Failed to create new level template.");
+
+            FLAlertLayer::create("ERROR", "Failed to create a new level template.", "OK")->show();
+        }
+    }
+
+private:
+    static std::string toValidFileName(const std::string& filename) {
+        std::string result;
+
+        for (char ch : filename) {
+            if (std::isalnum(ch)) {
+                result += std::tolower(ch);
+            }
+
+            else if (ch == ' ') {
+                result += '_';
+            }
+        }
+
+        return result;
+    }
+};
+
+class $modify(TemplateEditor, EditLevelLayer) {
+public:
+    void onTemplate(CCObject* sender) {
+        if (auto button = typeinfo_cast<CCMenuItemSpriteExtra*>(sender)) {
+            LevelTemplate::create(m_level->m_levelName, *m_level).save();
+        }
+    }
+
+    bool init(GJGameLevel* p0)  {
+        if (!EditLevelLayer::init(p0)) return false;
+
+        auto folder_menu = getChildByID("folder-menu");
+        auto sprite = CircleButtonSprite::create(nullptr, CircleBaseColor::Blue);
+        auto button = CCMenuItemSpriteExtra::create(sprite, this, menu_selector(TemplateEditor::onTemplate));
+
+        folder_menu->addChild(button, -1);
+        folder_menu->updateLayout(true);
+
+        button->setID("sofabeddd.level_templates/create-template-button");
+        button->setPositionY(button->getPositionY() - 12.f);
+        return true;
+    }
+};
+
+class $modify(LevelTemplateManager, GameLevelManager) {
+public:
+    GJGameLevel* createNewLevel(const LevelTemplate& level_template) {
+
+    }
+
     GJGameLevel* createNewLevel() {
         auto level = GameLevelManager::createNewLevel();
 
-        level->m_levelString = level_string;
         return level;
     }
 };

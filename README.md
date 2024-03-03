@@ -1,3 +1,2 @@
-# EditorPreferences
+# Level Templates
 
-This is where she makes a mod.
