@@ -96,8 +96,8 @@ public:
 
         button->setID("sofabeddd.level_templates/create-template-button");
         button->setPositionY(button->getPositionY() - 12.f);
-        return true;
 
+        return true;
     }
 };
 
