@@ -42,7 +42,7 @@ public:
     void save(const std::string& filename) {
         auto save_directory = dirs::getModsSaveDir().string().append("/sofabeddd.level_templates/templates/");
 
-        if (CreateDirectory(save_directory.c_str(), nullptr) || ERROR_ALREADY_EXISTS == GetLastError()) {
+        if (std::filesystem::create_directory(save_directory) || std::filesystem::exists(save_directory)) {
             std::ofstream template_file(save_directory.append(LevelTemplate::toValidFileName(filename)).append(".leveltemplate").c_str());
 
             template_file << "{\n\t\"name\": \"" << m_name.c_str() << "\",\n\t\"level_string\":\"" << m_levelString.c_str() << "\"\n}" << std::endl;
