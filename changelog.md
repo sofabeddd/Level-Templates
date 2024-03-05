@@ -1,2 +1,2 @@
 ## v1.0.0
-- Added Level Templates
+- Created the Level Template system.
