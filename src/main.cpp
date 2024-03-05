@@ -8,9 +8,9 @@
 
 using namespace geode::prelude;
 
-class $modify(TemplateEditor, EditLevelLayer) {
+class $modify(TemplateEditLevelLayer, EditLevelLayer) {
 public:
-    void onTemplate(CCObject* sender) {
+    void onSaveTemplate(CCObject* sender) {
         if (auto button = typeinfo_cast<CCMenuItemSpriteExtra*>(sender)) {
             LevelTemplate(*m_level).save();
         }
@@ -23,7 +23,7 @@ public:
 
         auto label = CCLabelBMFont::create("Save Level Template", "bigFont-hd.fnt", 48.f, CCTextAlignment::kCCTextAlignmentCenter);
         auto sprite = CircleButtonSprite::create(label, CircleBaseColor::Blue, CircleBaseSize::Big);
-        auto button = CCMenuItemSpriteExtra::create(sprite, this, menu_selector(TemplateEditor::onTemplate));
+        auto button = CCMenuItemSpriteExtra::create(sprite, this, menu_selector(TemplateEditLevelLayer::onSaveTemplate));
 
         folder_menu->addChild(button, -1);
         folder_menu->updateLayout(true);
@@ -35,9 +35,9 @@ public:
     }
 };
 
-class $modify(TemplateSelector, LevelBrowserLayer) {
+class $modify(TemplateLevelBrowserLayer, LevelBrowserLayer) {
 public:
-    void onTemplateSelect(CCObject* sender) {
+    void onTemplateSelectMenu(CCObject* sender) {
         if (auto button = typeinfo_cast<CCMenuItemSpriteExtra*>(sender)) {
             FLAlertLayer::create("Level Template", "// todo", "OK")->show();
         }
@@ -52,8 +52,7 @@ public:
             auto label = CCLabelBMFont::create("Select Template", "bigFont-hd.fnt", 48.f,
                                                CCTextAlignment::kCCTextAlignmentCenter);
             auto sprite = CircleButtonSprite::create(label, CircleBaseColor::Blue, CircleBaseSize::Big);
-            auto button = CCMenuItemSpriteExtra::create(sprite, this,
-                                                        menu_selector(TemplateSelector::onTemplateSelect));
+            auto button = CCMenuItemSpriteExtra::create(sprite, this, menu_selector(TemplateLevelBrowserLayer::onTemplateSelectMenu));
 
             new_level_menu->getChildByID("switch-mode-button")->setZOrder(1);
 

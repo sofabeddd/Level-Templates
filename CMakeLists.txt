@@ -10,6 +10,8 @@ add_library(${PROJECT_NAME} SHARED
     src/main.cpp
     src/LevelTemplates/LevelTemplate.hpp
     src/LevelTemplates/LevelTemplate.cpp
+        src/LevelTemplates/TemplateSelectorLayer.cpp
+        src/LevelTemplates/TemplateSelectorLayer.hpp
 )
 
 if (NOT DEFINED ENV{GEODE_SDK})

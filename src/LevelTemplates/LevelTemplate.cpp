@@ -1,4 +1,3 @@
-
 #include "LevelTemplate.hpp"
 
 using namespace geode::prelude;
@@ -6,8 +5,6 @@ using namespace geode::prelude;
 LevelTemplate::LevelTemplate(const GJGameLevel& level) :
     m_name(level.m_levelName),
     m_levelString(level.m_levelString) {}
-
-
 
 LevelTemplate::LevelTemplate(const ghc::filesystem::path &filepath) {
     std::ifstream input_file(filepath);
@@ -23,34 +20,33 @@ LevelTemplate::LevelTemplate(const ghc::filesystem::path &filepath) {
     m_levelString = level_template.get<gd::string>("level_string");
 }
 
-
-
 void LevelTemplate::save() const {
     save(m_name);
 }
 
-
-
 void LevelTemplate::save(const std::string& filename) const {
     auto save_directory = LevelTemplate::getTemplatesFolder();
 
-    if (std::filesystem::create_directory(save_directory.string()) || std::filesystem::exists(save_directory.string())) {
-        std::ofstream template_file(save_directory / LevelTemplate::toValidFileName(filename));
+//    // will implement when i figure out how the hell to use this
+//    matjson::Object template_json;
+//
+//    template_json["name"] = m_name.c_str();
+//    template_json["level_string"] = m_levelString.c_str();
 
-        template_file << "{\n\t\"name\": \"" << m_name.c_str() << "\",\n\t\"level_string\":\"" << m_levelString.c_str() << "\"\n}" << std::endl;
-        template_file.close();
+    std::ofstream template_file(save_directory / LevelTemplate::toValidFileName(filename));
 
-        FLAlertLayer::create("Template Created", "Created new level template: \n<cb>\"" + filename + "\"</c>", "OK")->show();
-    }
-
-    else {
-        log::error("Failed to create new level template.");
+    if (!template_file.is_open()) {
+        log::error("Failed to open file: \"{}\"", LevelTemplate::toValidFileName(filename));
 
         FLAlertLayer::create("ERROR", "Failed to create a new level template.", "OK")->show();
+        return;
     }
+
+    template_file << "{\n\t\"name\": \"" << m_name.c_str() << "\",\n\t\"level_string\":\"" << m_levelString.c_str() << "\"\n}" << std::endl;
+    template_file.close();
+
+    FLAlertLayer::create("Template Created", "Created new level template: \n<cb>\"" + filename + "\"</c>", "OK")->show();
 }
-
-
 
 ghc::filesystem::path LevelTemplate::getTemplatesFolder() {
     auto template_directory = dirs::getModsSaveDir() / Mod::get()->getID() / "templates";
@@ -63,8 +59,6 @@ ghc::filesystem::path LevelTemplate::getTemplatesFolder() {
     log::error("Failed to open folder: \"{}\"", template_directory.string());
     return ghc::filesystem::path {};
 }
-
-
 
 std::string LevelTemplate::toValidFileName(const std::string& filename) {
     std::string result;
