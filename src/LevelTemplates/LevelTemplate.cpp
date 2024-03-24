@@ -14,7 +14,9 @@ LevelTemplate::LevelTemplate(const ghc::filesystem::path &filepath) {
         return;
     }
 
-    matjson::Value level_template = matjson::parse(static_cast<std::stringstream&>((std::stringstream&) (std::stringstream() << input_file.rdbuf())).str());
+    matjson::Value level_template = matjson::parse(static_cast<std::stringstream&>(
+            (std::stringstream&) (std::stringstream() << input_file.rdbuf())).str()
+    );
 
     m_name = level_template.get<gd::string>("name");
     m_levelString = level_template.get<gd::string>("level_string");
@@ -45,11 +47,15 @@ void LevelTemplate::save(const std::string& filename) const {
     template_file << "{\n\t\"name\": \"" << m_name.c_str() << "\",\n\t\"level_string\":\"" << m_levelString.c_str() << "\"\n}" << std::endl;
     template_file.close();
 
-    FLAlertLayer::create("Template Created", "Created new level template: \n<cb>\"" + filename + "\"</c>", "OK")->show();
+    FLAlertLayer::create(
+            "Template Created",
+            "Created new level template: \n<cb>\"" + filename + "\"</c>",
+            "OK"
+    )->show();
 }
 
 ghc::filesystem::path LevelTemplate::getTemplatesFolder() {
-    auto template_directory = dirs::getModsSaveDir() / Mod::get()->getID() / "templates";
+    auto template_directory = dirs::getModConfigDir() / Mod::get()->getID() / "templates";
     std::filesystem::create_directory(template_directory.string());
 
     if (std::filesystem::exists(template_directory.string())) {

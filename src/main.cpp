@@ -5,13 +5,14 @@
 #include <Geode/modify/LevelBrowserLayer.hpp>
 
 #include "LevelTemplates/LevelTemplate.hpp"
+#include "UI/TemplateSelectorPopup.hpp"
 
 using namespace geode::prelude;
 
 class $modify(TemplateEditLevelLayer, EditLevelLayer) {
 public:
     void onSaveTemplate(CCObject* sender) {
-        if (auto button = typeinfo_cast<CCMenuItemSpriteExtra*>(sender)) {
+        if (typeinfo_cast<CCMenuItemSpriteExtra*>(sender)) {
             LevelTemplate(*m_level).save();
         }
     }
@@ -38,8 +39,10 @@ public:
 class $modify(TemplateLevelBrowserLayer, LevelBrowserLayer) {
 public:
     void onTemplateSelectMenu(CCObject* sender) {
-        if (auto button = typeinfo_cast<CCMenuItemSpriteExtra*>(sender)) {
-            FLAlertLayer::create("Level Template", "// todo", "OK")->show();
+        if (typeinfo_cast<CCMenuItemSpriteExtra*>(sender)) {
+            auto template_selector_layer = TemplateSelectorPopup::create();
+
+            template_selector_layer->show();
         }
     }
 
@@ -49,8 +52,7 @@ public:
         if (getChildByID("new-level-menu")) {
             auto new_level_menu = getChildByID("new-level-menu");
 
-            auto label = CCLabelBMFont::create("Select Template", "bigFont-hd.fnt", 48.f,
-                                               CCTextAlignment::kCCTextAlignmentCenter);
+            auto label = CCLabelBMFont::create("Select Template", "bigFont-hd.fnt", 48.f, CCTextAlignment::kCCTextAlignmentCenter);
             auto sprite = CircleButtonSprite::create(label, CircleBaseColor::Blue, CircleBaseSize::Big);
             auto button = CCMenuItemSpriteExtra::create(sprite, this, menu_selector(TemplateLevelBrowserLayer::onTemplateSelectMenu));
 

@@ -7,11 +7,15 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 project(EditorPreferences VERSION 1.0.0)
 
 add_library(${PROJECT_NAME} SHARED
-    src/main.cpp
-    src/LevelTemplates/LevelTemplate.hpp
-    src/LevelTemplates/LevelTemplate.cpp
-        src/LevelTemplates/TemplateSelectorLayer.cpp
-        src/LevelTemplates/TemplateSelectorLayer.hpp
+        src/main.cpp
+        src/LevelTemplates/LevelTemplate.hpp
+        src/LevelTemplates/LevelTemplate.cpp
+        src/UI/TemplateSelectorPopup.cpp
+        src/UI/TemplateSelectorPopup.hpp
+        src/LevelTemplates/TemplateSelectorList.cpp
+        src/LevelTemplates/TemplateSelectorList.hpp
+        src/LevelTemplates/LevelTemplateCell.cpp
+        src/LevelTemplates/LevelTemplateCell.hpp
 )
 
 if (NOT DEFINED ENV{GEODE_SDK})
@@ -22,4 +26,4 @@ endif()
 
 add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
 
-setup_geode_mod(${PROJECT_NAME})
+setup_geode_mod(${PROJECT_NAME} EXTERNALS geode.node-ids:1.8.1)

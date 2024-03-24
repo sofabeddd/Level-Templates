@@ -13,8 +13,9 @@ public:
     void save() const;
     void save(const std::string& filename) const;
 
-private:
     static ghc::filesystem::path getTemplatesFolder();
+
+private:
     static std::string toValidFileName(const std::string& filename);
 
     gd::string m_name;

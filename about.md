@@ -5,6 +5,9 @@ Level Templates is a GeodeSDK mod designed to enhance the Quality of Life (QoL) 
 
 Have feedback or encountered a bug? Report it [here](https://github.com/sofabeddd/Level-Templates/issues/new).
 
+## Latest Changes
+- Created the Level Template system.
+
 ## Credits
 **Idea by:** [MiraCatsy](user:9221683) & [1GTommie](user:6453115)
 
